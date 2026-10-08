@@ -4,14 +4,14 @@ const CDN_ESM = "https://cdn.jsdelivr.net/npm/@imgly/background-removal/+esm"
 let uploadedFile = null
 let resultBlob   = null
 
-const dropzone    = document.getElementById('dropzone')
-const fileInput   = document.getElementById('fileInput')
+const dropzone = document.getElementById('dropzone')
+const fileInput= document.getElementById('fileInput')
 const originalImg = document.getElementById('originalImg')
-const resultImg   = document.getElementById('resultImg')
-const removeBtn   = document.getElementById('removeBtn')
-const dlBtn       = document.getElementById('dlBtn')
-const loader      = document.getElementById('loader')
-const loaderTxt   = document.getElementById('loaderText')
+const resultImg = document.getElementById('resultImg')
+const removeBtn= document.getElementById('removeBtn')
+const dlBtn =document.getElementById('dlBtn')
+const loader  =document.getElementById('loader')
+const loaderTxt = document.getElementById('loaderText')
 
 
 // when they click "pick a file" instead of dragging
