@@ -77,9 +77,15 @@ removeBtn.addEventListener('click', async ()=>{
     // heads up - first time takes forever cuz it downloads like 40mb model
     let blob = await removeBackground(uploadedFile, {
       progress : (key, cur, total) =>{
-        if( total > 0 ){
-          let pct = Math.round((cur / total) * 100)
-          loaderTxt.textContent = `downloading model... ${pct}%`
+        if( key && key.startsWith('fetch:') ){
+          if( total > 0 ){
+            let pct = Math.round((cur / total) * 100)
+            loaderTxt.textContent = `downloading model... ${pct}%`
+          } else {
+            loaderTxt.textContent = 'downloading model...'
+          }
+        } else {
+          loaderTxt.textContent = 'processing image... almost there'
         }
       }
     })
