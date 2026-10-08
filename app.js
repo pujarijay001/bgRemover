@@ -1,8 +1,9 @@
-// found this lib online, does the ai stuff right in the browser lol no backend needed
-const CDN_ESM = "https://cdn.jsdelivr.net/npm/@imgly/background-removal/+esm"
+// using official huggingface transformers library - works in browser and no dodgy domain warnings lol
+import { pipeline, RawImage } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.3.3'
 
 let uploadedFile = null
 let resultBlob   = null
+let segmenter    = null
 
 const dropzone    = document.getElementById('dropzone')
 const fileInput   = document.getElementById('fileInput')
@@ -68,35 +69,65 @@ removeBtn.addEventListener('click', async ()=>{
   removeBtn.disabled = true
   dlBtn.disabled     = true
 
-  loaderTxt.textContent = 'processing... this might take a sec'
+  loaderTxt.textContent = 'loading model from hugging face... this takes a moment first time'
 
   try{
-    // lazy load the lib only when needed, also tell it where to find the model files
-    const { removeBackground } = await import(CDN_ESM)
-
-    // heads up - first time takes forever cuz it downloads like 40mb model
-    let blob = await removeBackground(uploadedFile, {
-      progress : (key, cur, total) =>{
-        if( total > 0 ){
-          let pct = Math.round((cur / total) * 100)
-          loaderTxt.textContent = `downloading model... ${pct}%`
+    if( !segmenter ){
+      // loads model directly from official huggingface repo
+      segmenter = await pipeline('image-segmentation', 'briaai/RMBG-1.4', {
+        progress_callback : (info) =>{
+          if( info.status === 'progress' && info.total ){
+            let pct = Math.round((info.loaded / info.total) * 100)
+            loaderTxt.textContent = `downloading model: ${pct}%`
+          } else if( info.status === 'ready' ){
+            loaderTxt.textContent = 'processing image...'
+          }
         }
-      }
-    })
+      })
+    }
 
-    resultBlob = blob
-    let resultUrl = URL.createObjectURL(blob)
+    loaderTxt.textContent = 'removing background...'
 
-    resultImg.src           = resultUrl
-    resultImg.style.display = 'block'
-    dlBtn.disabled          = false
+    // read uploaded file
+    let imgUrl = URL.createObjectURL(uploadedFile)
+    let raw = await RawImage.fromURL(imgUrl)
 
-    loaderTxt.textContent = 'done!'
-    setTimeout(()=> loader.classList.add('hidden'), 800)
+    // run segmentation
+    let output = await segmenter(raw)
+
+    // output is mask image, convert to blob to display
+    let canvas = output[0].mask.toCanvas()
+    
+    // combine mask with original image into clean transparent cutout
+    let resultCanvas = document.createElement('canvas')
+    resultCanvas.width  = raw.width
+    resultCanvas.height = raw.height
+    let ctx = resultCanvas.getContext('2d')
+
+    let tempImg = new Image()
+    tempImg.src = imgUrl
+    await new Promise(r => tempImg.onload = r)
+
+    // draw mask
+    ctx.drawImage(canvas, 0, 0, raw.width, raw.height)
+    ctx.globalCompositeOperation = 'source-in'
+    ctx.drawImage(tempImg, 0, 0, raw.width, raw.height)
+
+    // export to png blob
+    resultCanvas.toBlob(blob =>{
+      resultBlob = blob
+      let resultUrl = URL.createObjectURL(blob)
+
+      resultImg.src           = resultUrl
+      resultImg.style.display = 'block'
+      dlBtn.disabled          = false
+
+      loaderTxt.textContent = 'done!'
+      setTimeout(()=> loader.classList.add('hidden'), 800)
+    }, 'image/png')
 
   } catch(err){
     console.error('something went wrong:', err)
-    // show the actual error so we can debug it
     loaderTxt.textContent = 'error: ' + (err?.message || err)
     removeBtn.disabled    = false
   }
