@@ -4,6 +4,8 @@ drops the background from any image, works right in the browser. no server, no a
 
 i built this to see if you can actually run ai in the browser without a backend. turns out you can lol
 
+have a visit: https://bg-remover-two-bay.vercel.app/
+
 ---
 
 ## what it does
