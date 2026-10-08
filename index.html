@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BG Remover</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <h1>BG Remover 🪄</h1>
+  <p class="sub">drop an image and watch the magic happen lol</p>
+
+  <div id="dropzone">
+    <p>drag & drop image here</p>
+    <span>or</span>
+    <label for="fileInput">pick a file</label>
+    <input type="file" id="fileInput" accept="image/*"/>
+  </div>
+
+  <div id="preview-area">
+
+    <div class="box">
+      <p>original</p>
+      <img id="originalImg" src="" alt="original"/>
+    </div>
+
+    <div class="box">
+      <p>result</p>
+      <div id="resultWrapper">
+        <img id="resultImg" src="" alt="result"/>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="controls">
+    <button id="removeBtn" disabled>remove background</button>
+    <button id="dlBtn" disabled>⬇ download</button>
+  </div>
+
+  <div id="loader" class="hidden">
+    <div class="spinner"></div>
+    <p id="loaderText">processing... this might take a sec</p>
+  </div>
+
+  <script type="module" src="app.js"></script>
+
+</body>
+</html>
