@@ -1,4 +1,4 @@
-# bg remover 🪄
+# bg remover 
 
 drops the background from any image, works right in the browser. no server, no api key, nothing to install.
 
